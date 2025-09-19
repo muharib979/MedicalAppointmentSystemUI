@@ -59,6 +59,24 @@
           </tbody>
         </table>
       </div>
+
+      <nav *ngIf="totalCount > pageSize">
+  <ul class="pagination justify-content-center">
+    <li class="page-item" [class.disabled]="pageNumber === 1">
+      <a class="page-link" (click)="goPrevious()">Previous</a>
+    </li>
+
+    <li class="page-item disabled">
+      <span class="page-link">
+        Page {{pageNumber}} of {{ totalPages }}
+      </span>
+    </li>
+
+    <li class="page-item" [class.disabled]="pageNumber >= totalPages">
+      <a class="page-link" (click)="goNext()">Next</a>
+    </li>
+  </ul>
+</nav>
     </div>
 
     <!-- Appointment Form -->

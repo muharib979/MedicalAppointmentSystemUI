@@ -46,6 +46,14 @@ export interface MedicineDto {
   description: string;
 }
 
+export interface PagedResult<T> {
+  results: T[];
+  totalCount: number;
+  pageNumber: number;
+  pageSize: number;
+}
+
+
 @Injectable({
   providedIn: 'root'
 })
@@ -68,9 +76,13 @@ export class AppointmentService {
     return this.http.get<MedicineDto[]>(`${this.baseUrl}/get-all-medicines`);
   }
 
-getAppointment(): Observable<AppointmentDto[]> {
-    return this.http.get<AppointmentDto[]>(`${this.baseUrl}/appointments`);
-  }
+
+
+  getAppointments(pageNumber: number, pageSize: number): Observable<PagedResult<AppointmentDto>> {
+  return this.http.get<PagedResult<AppointmentDto>>(
+    `${this.baseUrl}/appointments?pageNumber=${pageNumber}&pageSize=${pageSize}`
+  );
+}
 
    getAppointmentById(id: number): Observable<AppointmentDto> {
     return this.http.get<AppointmentDto>(`${this.baseUrl}/appointments/${id}`);

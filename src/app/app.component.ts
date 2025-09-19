@@ -30,6 +30,11 @@ export class AppComponent implements OnInit {
   selectedVisitType = '';
   showForm = false;
   editMode = false;
+  totalCount = 0;
+  pageNumber = 1;
+  pageSize = 3;
+
+  
 
 
 
@@ -37,7 +42,7 @@ export class AppComponent implements OnInit {
 
   ngOnInit(): void {
     this.initForm();
-    this.loadDropdownData();
+    this.loadData();
     this.getAppointments();
   }
 
@@ -55,28 +60,44 @@ export class AppComponent implements OnInit {
 
   }
 
-  loadDropdownData(): void {
-    this.appointmentService.getPatients().subscribe({
-      next: (res) => this.patients = res,
-      error: (err) => console.error('Error fetching patients', err)
-    });
+ loadData(): void {
+  this.appointmentService.getPatients().subscribe({
+    next: (res) => {
+      this.patients = res;
+    },
+    error: (err) => {
+      this.notify.error('Failed to load patients');
+    }
+  });
 
-    this.appointmentService.getDoctors().subscribe({
-      next: (res) => this.doctors = res,
-      error: (err) => console.error('Error fetching doctors', err)
-    });
+  this.appointmentService.getDoctors().subscribe({
+    next: (res) => {
+      this.doctors = res;
+    },
+    error: (err) => {
+      this.notify.error('Failed to load doctors');
+    }
+  });
 
-    this.appointmentService.getMedicines().subscribe({
-      next: (res) => this.medicines = res,
-      error: (err) => console.error('Error fetching medicines', err)
-    });
-  }
+  this.appointmentService.getMedicines().subscribe({
+    next: (res) => {
+      this.medicines = res;
+    },
+    error: (err) => {
+      this.notify.error('Failed to load medicines ');
+    }
+  });
+}
+
 
   getAppointments(): void {
-    this.appointmentService.getAppointment().subscribe((res) => {
-      this.appointments = res;
-      console.log('Appointments fetched:', this.appointments);
-    })
+this.appointmentService.getAppointments(this.pageNumber, this.pageSize).subscribe({
+    next: (res) => {
+      this.appointments = res.results;
+      this.totalCount = res.totalCount;
+    },
+    error: (err) => console.error('Error fetching appointments', err)
+  });
   }
 
   viewDetails(id: number): void {
@@ -253,6 +274,24 @@ export class AppComponent implements OnInit {
       notes: [''],
       prescriptions: this.fb.array([])
     });
+  }
+
+  get totalPages(): number {
+  return Math.ceil(this.totalCount / this.pageSize);
+}
+
+ goPrevious() {
+    if (this.pageNumber > 1) {
+      this.pageNumber--;
+      this.getAppointments();
+    }
+  }
+
+  goNext() {
+    if (this.pageNumber < this.totalPages) {
+      this.pageNumber++;
+      this.getAppointments();
+    }
   }
 
   onCancel(): void {
